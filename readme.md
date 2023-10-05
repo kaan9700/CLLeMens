@@ -1,31 +1,55 @@
 # CLLeMens Project
 
-This web project utilizes Django for the backend and React for the frontend.
-
 ## Prerequisites
 
 - Python 3.10.13
-- Node.js 18.18.0 and npm 9.8.1
+- Node.js and npm
+- Django package for the backend
 
 ## Installation and Setup
 
-Clone the repository and navigate to the project directory.
+Clone the repository and navigate into the project directory.
 
 ### Backend Setup (CLLeMensWebServer)
 
-1. Navigate to the `CLLeMensWebServer` directory:
+1. Navigate into the `CLLeMensWebServer` directory:
     ```bash
     cd CLLeMensWebServer
     ```
 
-2. Django is the only required package for the backend. Start the Django server:
+2. Create and activate a virtual environment, or use a conda environment:
+
+    **Virtual Environment**
+    ```bash
+    python3 -m venv your_virtual_env
+    source your_virtual_env/bin/activate  # On Unix or macOS
+    ```
+    Or
+    ```bash
+    your_virtual_env\Scripts\activate  # On Windows
+    ```
+
+    **Conda Environment**
+    ```bash
+    conda create --name your_conda_env
+    conda activate your_conda_env
+    ```
+
+3. Install the required packages:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Run the Django server:
     ```bash
     python manage.py runserver
     ```
 
+   
+
 ### Frontend Setup (CLLeMensWebClient)
 
-1. Open a new terminal and navigate to the `CLLeMensWebClient` directory:
+1. Open a new terminal and navigate into the `CLLeMensWebClient` directory:
     ```bash
     cd CLLeMensWebClient
     ```
@@ -35,12 +59,13 @@ Clone the repository and navigate to the project directory.
     npm install
     ```
 
-3. Start the React development server:
+3. Run the React development server:
     ```bash
     npm run dev
     ```
 
-Both servers should now be running. Open your web browser and navigate to the respective URLs to use the application.
 
-- The backend server runs on port 8000.
-- The frontend server runs on port 3000.
+
+Both servers should now be running. Open your web browser and navigate to the respective URL to use the application.
+- The backend server will run on Port 8000. 
+- The frontend will run on Port 3000.
