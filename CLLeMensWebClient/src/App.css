@@ -58,7 +58,7 @@
 }
 
 /* Responsive Design */
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 950px) {
     .feature-card {
         padding-bottom: 50px;
     }
@@ -82,11 +82,19 @@
         max-width: 100%;
 
     }
+
     .file-search-buttons {
         display: flex;
         gap: 20px; /* Abstand zwischen den Kind-Elementen */
         justify-content: right;
     }
+
+    .file-upload-wrapper {
+        width: 95%;
+        margin: 0 auto;
+    }
+
+
 
 }
 
@@ -121,9 +129,9 @@
     background-color: #141414; /* Ändern Sie dies je nach Dunkelheit Ihres Hintergrunds */
 }
 
-@media only screen and (min-width: 768px) {
+@media only screen and (min-width: 950px) {
     .files-wrapper {
-        width: 70%;
+        max-width: 850px;
         margin: 0 auto;
     }
 
@@ -133,13 +141,13 @@
         flex-direction: row; /* Vertikale Anordnung */
         gap: 20px; /* Abstand zwischen den Kind-Elementen */
     }
+
+    .file-upload-wrapper {
+        width: 70%;
+        margin: 0 auto;
+    }
 }
 
-
-.file-upload-wrapper {
-    width: 70%;
-    margin: 0 auto;
-}
 
 .file-search-form {
     margin-bottom: 25px;

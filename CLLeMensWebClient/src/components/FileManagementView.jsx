@@ -136,7 +136,7 @@ const FileManagementView = () => {
                     <Input
                         defaultValue={removeFileExtension(text)}
                         onChange={(e) => handleFileNameChange(file.key, e.target.value)}
-                        style={{width: '80%'}} // Input nimmt die volle Breite der Zelle ein
+                        className={'file-edit-searchbar'}
                     />
                 ) : removeFileExtension(text)
             ),

@@ -1,3 +1,18 @@
+# models.py
 from django.db import models
+import hashlib
 
-# Create your models here.
+class UploadedFile(models.Model):
+    filename = models.CharField(max_length=255)
+    file_type = models.CharField(max_length=50)
+    md5_hash = models.CharField(max_length=32, blank=True, editable=False)
+    file = models.FileField(upload_to='uploads/')
+
+    def save(self, *args, **kwargs):
+        # Hier berechnen wir den MD5 Hash der Datei
+        md5 = hashlib.md5()
+        for chunk in self.file.chunks():
+            md5.update(chunk)
+        self.md5_hash = md5.hexdigest()
+        super(UploadedFile, self).save(*args, **kwargs)
+1
