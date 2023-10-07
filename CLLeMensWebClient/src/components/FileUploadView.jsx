@@ -20,7 +20,7 @@ const FileUploadView = () => {
     };
 
     return (
-        <div style={{color: 'white'}}>
+        <div style={{color: 'white'}} className={'file-upload-wrapper'}>
             <Title style={{paddingBottom: '2rem', color: '#fff'}}>Upload Files</Title>
 
             <Paragraph style={{color: '#fff', marginBottom: '2em'}}>Enhance the capabilities of your personal assistant
