@@ -5,6 +5,8 @@ from .models import UploadedFile
 import os
 from django.conf import settings
 import json
+import hashlib
+
 class FileUploadView(APIView):
     def post(self, request):
         # Use `getlist` to support multiple files
@@ -17,9 +19,20 @@ class FileUploadView(APIView):
         successfully_uploaded = []
 
         for uploaded_file in uploaded_files:
+            # MD5-Hash berechnen
+            md5 = hashlib.md5()
+            for chunk in uploaded_file.chunks():
+                md5.update(chunk)
+            md5_hash = md5.hexdigest()
+
+            # Prüfen, ob eine Datei mit dem gleichen MD5-Hash bereits in der Datenbank existiert
+            if UploadedFile.objects.filter(md5_hash=md5_hash).exists():
+                already_exists.append(uploaded_file.name)
+                print("The md5 hash already exists in the database")
+                continue
+
             # Replace spaces with underscores in the file name
             modified_name = uploaded_file.name.replace(' ', '_')
-
             # Construct the path where the file would be saved
             file_path = os.path.join(os.path.join(settings.BASE_DIR, '..', 'media', 'uploads'), modified_name)
 
@@ -27,20 +40,23 @@ class FileUploadView(APIView):
             if os.path.exists(file_path):
                 already_exists.append(modified_name)
             else:
-                # Save the file using the modified name
-                file_instance = UploadedFile(filename=modified_name, file_type=uploaded_file.content_type,
-                                             file=uploaded_file)
+                # Save the file using the modified name and add md5_hash to the instance
+                file_instance = UploadedFile(
+                    filename=modified_name,
+                    file_type=uploaded_file.content_type,
+                    file=uploaded_file,
+                    md5_hash=md5_hash
+                )
                 file_instance.save()
                 successfully_uploaded.append(file_instance.id)
 
-        # All files already exist
+        # Handle response logic based on files that were uploaded or already existed
         if already_exists and not successfully_uploaded:
             if len(already_exists) > 1:
                 return Response({'message': 'The files already exist'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'message': 'The file already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Some files already exist but others were uploaded successfully
         if already_exists:
             return Response({
                 'message': f'The following files already exist: {", ".join(already_exists)}.',
@@ -54,7 +70,6 @@ class FileUploadView(APIView):
                 'uploaded_files_ids': successfully_uploaded,
                 'message_type': 'success'
             }, status=status.HTTP_201_CREATED)
-
 
 
 class ListAllFilesView(APIView):
@@ -73,7 +88,6 @@ class ListAllFilesView(APIView):
         ]
 
         return Response({'data': all_files_output}, status=status.HTTP_200_OK)
-
 
 
 class DeleteFileView(APIView):
@@ -106,6 +120,7 @@ class DeleteFileView(APIView):
         except Exception as e:
             return Response({'message': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class UpdateFileNamesView(APIView):
     def post(self, request, *args, **kwargs):
         try:
@@ -120,8 +135,8 @@ class UpdateFileNamesView(APIView):
 
                 if not file_instance:
                     return Response({
-                                    'error': f"File with ID {file_data['id']} and name {file_data['original_name']} not found."},
-                                    status=404)
+                        'error': f"File with ID {file_data['id']} and name {file_data['original_name']} not found."},
+                        status=404)
 
                 # Rename in the file system
                 old_path = os.path.join(settings.MEDIA_ROOT, file_instance.file.name)
