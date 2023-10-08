@@ -1,7 +1,9 @@
-// FileUploadView.js
 import React, {useState} from 'react';
 import {Upload, Button, message, Typography, Descriptions} from 'antd';
 import {UploadOutlined, InboxOutlined} from '@ant-design/icons';
+import {makeRequest} from "../api/api.js";
+import {UPLOAD} from "../api/endpoints.js";
+import Notifications from "./Notifications.jsx";
 
 const {Dragger} = Upload;
 const {Title, Paragraph} = Typography;
@@ -9,15 +11,31 @@ const {Title, Paragraph} = Typography;
 const FileUploadView = () => {
     const [fileList, setFileList] = useState([]);
 
+    // Custom request to handle file uploads
     const customRequest = ({onSuccess}) => {
         setTimeout(() => {
             onSuccess('ok');
         }, 0);
     };
 
-    const handleUpload = () => {
-        console.log('Uploading files:', fileList);
+    // Handle the file upload to the backend
+    const handleUpload = async () => {
+        // Create FormData to transfer files
+        const formData = new FormData();
+        fileList.forEach(file => {
+            formData.append('files', file.originFileObj);
+        });
+
+        try {
+            // backend endpoint is '/upload'
+            const response = await makeRequest('POST', UPLOAD, formData);
+            // Use the message from the server response
+            Notifications(response.message_type, {'message': 'Success', 'description': response.message});
+        } catch (error) {
+            Notifications('error', {'message': 'Error', 'description': error.message});
+        }
     };
+
 
     return (
         <div style={{color: 'white'}} className={'file-upload-wrapper'}>
