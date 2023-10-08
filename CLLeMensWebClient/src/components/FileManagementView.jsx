@@ -1,20 +1,22 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Button, Input, Table, Modal, Checkbox, Typography} from 'antd';
 import {EditOutlined, SaveOutlined, DeleteOutlined, FilterOutlined} from '@ant-design/icons';
+import {makeRequest} from "../api/api.js";
+import {GET_FILES, DELETE_FILE, CHANGE_FILE_NAMES} from "../api/endpoints.js";
 
 const {Title} = Typography;
 
 const FileManagementView = () => {
+
+    // Defining state variables
     const [searchTerm, setSearchTerm] = useState('');
     const [editMode, setEditMode] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [currentFile, setCurrentFile] = useState(null);
-
+    const [allFiles, setAllFiles] = useState([]);
     const [originalFileNames, setOriginalFileNames] = useState({});
     const [changedFiles, setChangedFiles] = useState([]);
-
-
     const [filter, setFilter] = useState({
         ebooks: false,
         pdf: false,
@@ -24,35 +26,50 @@ const FileManagementView = () => {
     });
     const [tempFilter, setTempFilter] = useState({...filter});
 
-    const allFiles = [
-        {key: 1, name: 'Document1.pdf', type: 'pdf'},
-        {key: 2, name: 'Ebook2.epub', type: 'ebooks'},
-        {key: 3, name: 'Video1.mp4', type: 'videos'},
-        {key: 4, name: 'Link1.url', type: 'links'},
-        {key: 5, name: 'Document2.docx', type: 'word'},
-        {key: 6, name: 'Document1.pdf', type: 'pdf'},
-        {key: 7, name: 'Ebook2.epub', type: 'ebooks'},
-        {key: 8, name: 'Video1.mp4', type: 'videos'},
-        {key: 9, name: 'Link1.url', type: 'links'},
-        {key: 10, name: 'Document2.docx', type: 'word'},
-    ];
+    // Fetching files on component mount
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Replace this with the exact endpoint and the makeRequest signature
+                const response = await makeRequest('GET', GET_FILES);
+                if (response && response.data) {
+                    setAllFiles(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching the file list:", error);
+            }
+        };
+        // Call the function immediately when the component mounts
+        fetchData();
+        // Set up an interval to fetch data every 2 minutes (120,000 milliseconds)
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, 120000);
 
+        // Cleanup function: clear the interval when the component is unmounted
+        return () => clearInterval(intervalId);
+    }, []);
+
+    // Filtering the files based on search and file types
     const filteredFiles = allFiles.filter(file => {
+        // Check if the file name contains the search term
         const searchTermMatches = file.name.toLowerCase().includes(searchTerm.toLowerCase());
+        // Check if the file type is selected in the filter
         if (Object.keys(filter).some(key => filter[key] === true)) {
             return filter[file.type] && searchTermMatches;
         }
         return searchTermMatches;
     });
 
-
+    // Handlers for different actions
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
 
+    // Handler to enable/disable edit mode
     const handleEditClick = () => {
         if (!editMode) {
-            // Wenn der Bearbeitungsmodus aktiviert ist, speichern Sie die ursprünglichen Dateinamen
+            // If the edit mode is enabled, store the original file names
             const originalNames = allFiles.reduce((acc, file) => {
                 acc[file.key] = file.name;
                 return acc;
@@ -62,69 +79,105 @@ const FileManagementView = () => {
         setEditMode(!editMode);
     };
 
-    const handleSaveClick = () => {
+    // Handler to save the changes
+    const handleSaveClick = async () => {
         if (editMode) {
             console.log('Changes saved.');
-            // Loggen der Änderungen
+            // Prepare the data to be sent to the backend
+            let changedFilesData = [];
             changedFiles.forEach(fileKey => {
-                console.log({
+                changedFilesData.push({
                     id: fileKey,
                     original_name: originalFileNames[fileKey],
                     new_name: allFiles.find(file => file.key === fileKey).name
                 });
             });
-            // Zustände zurücksetzen
+
+            try {
+                const response = await makeRequest('POST', CHANGE_FILE_NAMES, changedFilesData);
+                if (response && response.message) {
+                    console.log(response.message);  // Display the message from backend
+                }
+            } catch (error) {
+                console.error("Fehler beim Aktualisieren der Dateinamen:", error);
+            }
+
+            // Resetting the states
             setEditMode(false);
             setOriginalFileNames({});
             setChangedFiles([]);
         }
     };
+
+    // Handler to show delete confirmation modal
     const handleDeleteClick = (file) => {
         setCurrentFile(file);
         setDeleteModalVisible(true);
     };
 
-    const handleDeleteConfirm = () => {
-        console.log({'key': currentFile.key, 'name': currentFile.name});
+    // Handler to delete the file
+    const handleDeleteConfirm = async () => {
+        try {
+            const response = await makeRequest('POST', DELETE_FILE, {
+                id: currentFile.key,
+                name: currentFile.name
+            });
+
+            if (response && response.message === 'File successfully deleted.') {
+                console.log("File erfolgreich gelöscht!");
+                // Remove the deleted file from allFiles based on the id
+                const updatedFiles = allFiles.filter(file => file.key !== currentFile.key);
+                setAllFiles(updatedFiles);
+            }
+        } catch (error) {
+            console.error("Fehler beim Löschen der Datei:", error);
+        }
         setDeleteModalVisible(false);
     };
 
+    // Handler to show filter modal
     const handleFilterClick = () => {
         setTempFilter({...filter});
         setModalVisible(true);
     };
 
+
+    // Handler to update the filter state
     const handleTempFilterChange = (e) => {
         setTempFilter({...tempFilter, [e.target.name]: e.target.checked});
     };
 
+    // Handler to confirm the filter
     const handleFilterConfirm = () => {
         setFilter(tempFilter);
         setModalVisible(false);
     };
 
+    // Handler to update the file name
     const handleFileNameChange = (key, newNameWithoutExtension) => {
         const fileIndex = allFiles.findIndex(file => file.key === key);
         if (fileIndex !== -1) {
-            // Füge die Dateiendung zurück zum Dateinamen hinzu
+
+            // Add the file extension back to the filename
             const fileExtension = allFiles[fileIndex].name.split('.').pop();
             const newName = `${newNameWithoutExtension}.${fileExtension}`;
 
-            // Aktualisiere den Dateinamen
+            // Update the file name
             allFiles[fileIndex].name = newName;
 
-            // Verfolge die Änderung, wenn sie noch nicht verfolgt wird
+            // Track the change if it's not already being tracked
             if (!changedFiles.includes(key)) {
                 setChangedFiles(prev => [...prev, key]);
             }
         }
     };
 
+    // Helper function to remove the file extension from the file name
     const removeFileExtension = (filename) => {
         return filename.split('.').slice(0, -1).join('.');
     };
 
-
+    // Defining the columns for the table
     const columns = [
         {
             title: 'File Name',
@@ -146,7 +199,6 @@ const FileManagementView = () => {
             dataIndex: 'type',
             key: 'type',
             render: (type) => {
-                // Hier können Sie weitere Formatierungen oder Übersetzungen für den Dateityp hinzufügen, wenn benötigt.
                 return type;
             },
         },

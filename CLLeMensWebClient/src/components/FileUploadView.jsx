@@ -31,6 +31,8 @@ const FileUploadView = () => {
             const response = await makeRequest('POST', UPLOAD, formData);
             // Use the message from the server response
             Notifications(response.message_type, {'message': 'Success', 'description': response.message});
+            // Clear the fileList after successful upload
+            setFileList([]);
         } catch (error) {
             Notifications('error', {'message': 'Error', 'description': error.message});
         }
