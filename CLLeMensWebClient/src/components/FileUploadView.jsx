@@ -85,7 +85,7 @@ const FileUploadView = () => {
                 onChange={({fileList: newFileList}) => {
                     setFileList(newFileList);
                 }}
-                style={{color: 'white', borderColor: '#64646b', padding: '20px'}}
+                style={{color: 'white', borderColor: '#64646b', padding: '20px', maxHeight: '300px'}}
                 className="custom-dragger"
             >
                 <p className="ant-upload-drag-icon">

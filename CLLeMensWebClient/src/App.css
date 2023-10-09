@@ -1,9 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+
+body {
+    position: relative;
+    background: #202020;
+}
+
 #root {
+    background: #242424;
     width: 100%;
     margin: 0 auto;
-    padding: 2rem;
     text-align: center;
-
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
 }
 
 .logo {
@@ -57,6 +71,66 @@
 
 }
 
+.custom-dragger:hover {
+    background-color: #535353 !important;
+}
+
+.ant-upload-list-item-name, .ant-upload-icon span svg {
+    color: #fff;
+}
+
+.ant-upload-list-item-action span span svg {
+    color: red
+}
+
+/* Ändert die Hover-Farbe von nicht ausgewählten Seitenzahlen und Pfeilen */
+.ant-pagination-item:hover a, .ant-pagination-prev:hover a, .ant-pagination-next:hover a {
+    color: #40a9ff; /* Das ist die Standard-Farbe von Ant Design für Hover, aber Sie können sie nach Belieben ändern */
+}
+
+.ant-pagination-item-link span {
+    color: white;
+}
+
+.ant-pagination-item a {
+    color: white;
+
+}
+
+
+.ant-pagination-item-active {
+    background-color: #141414;
+}
+
+
+.file-search-form {
+    margin-bottom: 25px;
+}
+
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.home-container, .file-upload-wrapper {
+    padding: 2rem;
+}
+
+.customNavbar .ant-menu-item:hover {
+    color: white !important;
+}
+
+.customNavbar .ant-menu-item-selected {
+    color: white !important;
+}
+
+.navbar ul {
+    background: #202020;
+    height: 75px;
+}
+
 /* Responsive Design */
 @media only screen and (max-width: 950px) {
     .feature-card {
@@ -91,47 +165,39 @@
 
     .file-upload-wrapper {
         width: 95%;
-        margin: 0 auto;
+        margin: 0 auto 100px auto;
     }
 
+    .navbar {
+        flex-direction: column;
+    }
 
+    .customNavbar {
+        width: 100% !important;
+    }
 
-}
-
-.custom-dragger:hover {
-    background-color: #535353 !important;
-}
-
-.ant-upload-list-item-name, .ant-upload-icon span svg {
-    color: #fff;
-}
-
-.ant-upload-list-item-action span span svg {
-    color: red
-}
-
-/* Ändert die Hover-Farbe von nicht ausgewählten Seitenzahlen und Pfeilen */
-.ant-pagination-item:hover a, .ant-pagination-prev:hover a, .ant-pagination-next:hover a {
-    color: #40a9ff; /* Das ist die Standard-Farbe von Ant Design für Hover, aber Sie können sie nach Belieben ändern */
-}
-
-.ant-pagination-item-link span {
-    color: white;
-}
-
-.ant-pagination-item a {
-    color: white;
+    .navbar ul {
+        width: 100%;
+        padding: 0;
+        justify-content: center;
+    }
 
 }
 
-/* Ändert den Hintergrund der aktuell ausgewählten Seite */
-.ant-pagination-item-active {
-    background-color: #141414; /* Ändern Sie dies je nach Dunkelheit Ihres Hintergrunds */
+.ant-table-cell {
+    max-width: 200px;
+
 }
+
+.ant-table-wrapper {
+    margin: 0 auto;
+}
+
 
 @media only screen and (min-width: 950px) {
     .files-wrapper {
         max-width: 850px;
+        min-width: 70%;
         margin: 0 auto;
     }
 
@@ -146,12 +212,23 @@
         width: 70%;
         margin: 0 auto;
     }
+
+    .navbar {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .navbar-logo {
+        width: 50%;
+        margin-bottom: 10px;
+    }
+
+    .customNavbar {
+        width: 50%;
+        justify-content: right;
+        align-items: center;
+        padding-right: 5%;
+    }
+
 }
-
-
-.file-search-form {
-    margin-bottom: 25px;
-}
-
-
 

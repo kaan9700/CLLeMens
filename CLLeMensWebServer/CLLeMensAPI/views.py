@@ -9,12 +9,7 @@ import os
 from django.conf import settings
 import json
 import hashlib
-
-
-
 from pathlib import Path
-
-
 
 
 class FileUploadView(APIView):
