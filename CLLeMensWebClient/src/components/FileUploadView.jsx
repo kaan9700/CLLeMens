@@ -38,7 +38,18 @@ const FileUploadView = () => {
         }
     };
 
+    const enabledButtonStyle = {
+        marginTop: '2em',
+        width: '50%',
+        maxWidth: '150px',
+    };
 
+    const disabledButtonStyle = {
+        ...enabledButtonStyle,
+        backgroundColor: '#ccc',
+        color: 'white',
+        cursor: 'not-allowed',
+    };
     return (
         <div style={{color: 'white'}} className={'file-upload-wrapper'}>
             <Title style={{paddingBottom: '2rem', color: '#fff'}}>Upload Files</Title>
@@ -89,9 +100,11 @@ const FileUploadView = () => {
             <Button
                 type="primary"
                 onClick={handleUpload}
-                style={{marginTop: '2em', width: '50%', maxWidth: '150px'}}
+                disabled={fileList.length === 0}
+                style={fileList.length === 0 ? disabledButtonStyle : enabledButtonStyle}
             >
                 Upload
+
             </Button>
 
         </div>
