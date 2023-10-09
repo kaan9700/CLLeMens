@@ -1,6 +1,6 @@
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from CLLeMensWebServer.CLLeMensLangchain.schema.loaders import Loaders
+from CLLeMensLangchain.schema.loaders import Loaders
 from typing import Union, List
 from langchain.document_loaders import PyPDFLoader
 from langchain.docstore.document import Document

@@ -1,13 +1,27 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from CLLeMensLangchain.utils.FileTypeHandler import FileTypeHandler
+from CLLeMensLangchain.vectordbs.deeplake import deeplakeDB
 from .models import UploadedFile
 import os
 from django.conf import settings
 import json
 import hashlib
 
+
+
+from pathlib import Path
+
+
+
+
 class FileUploadView(APIView):
+    def __init__(self):
+        BASE_DIR = Path(__file__).resolve().parent.parent
+        self.db = deeplakeDB(base_dir=BASE_DIR)
+        self.fileHandler = FileTypeHandler()
     def post(self, request):
         # Use `getlist` to support multiple files
         uploaded_files = request.FILES.getlist('files')
@@ -49,6 +63,8 @@ class FileUploadView(APIView):
                 )
                 file_instance.save()
                 successfully_uploaded.append(file_instance.id)
+                docs = self.fileHandler.process_file(file_path)
+                self.db.append_to_db(docs)
 
         # Handle response logic based on files that were uploaded or already existed
         if already_exists and not successfully_uploaded:

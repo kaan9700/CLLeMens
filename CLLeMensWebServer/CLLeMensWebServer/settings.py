@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'CLLeMensAPI',
     'rest_framework',
     'corsheaders',
+    'CLLeMensLangchain',
 ]
 
 MIDDLEWARE = [

@@ -1,4 +1,4 @@
-from CLLeMensWebServer.CLLeMensLangchain.loaders.pdf_loader import PdfLoader
+from CLLeMensLangchain.loaders.pdf_loader import PdfLoader
 
 pdfLoader=PdfLoader(file_path="~\\LLM_generated_Code_Documentation_Tool.pdf", extract_images=True)
 contentlist = pdfLoader.load()

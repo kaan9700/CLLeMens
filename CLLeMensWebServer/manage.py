@@ -5,6 +5,11 @@ import sys
 
 
 def main():
+    ###Compatibility block for the new module
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    parent_directory = os.path.dirname(current_directory)
+    sys.path.append(parent_directory)
+    ###End of compatibility block
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CLLeMensWebServer.settings')
     try:
