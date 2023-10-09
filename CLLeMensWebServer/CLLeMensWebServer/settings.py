@@ -119,7 +119,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://172.20.10.2:3000'
 ]
 CORS_ALLOW_CREDENTIALS = True
-
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
