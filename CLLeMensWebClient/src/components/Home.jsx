@@ -19,7 +19,7 @@ const Home = () => {
             {/* Introduction */}
             <Title style={{color: '#fff'}}>Welcome to CLLeMens</Title>
             <Paragraph style={{color: '#fff'}}>
-                Your personal robot assistant with "Follow-Me" functionality.
+                Your personal robot assistant with individual knowledge base.
             </Paragraph>
             <Divider style={{backgroundColor: 'lightgray', margin: '75px 0'}}/>
             {/* Call to Action */}
