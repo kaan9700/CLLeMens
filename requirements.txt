@@ -5,3 +5,5 @@ pytz==2023.3.post1
 sqlparse==0.4.4
 typing_extensions==4.8.0
 django-cors-headers==4.2.0
+langchain===0.0.310
+pypdf=3.16.3
