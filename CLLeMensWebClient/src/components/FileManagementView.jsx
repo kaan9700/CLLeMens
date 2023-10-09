@@ -183,16 +183,18 @@ const FileManagementView = () => {
             title: 'File Name',
             dataIndex: 'name',
             key: 'name',
-            width: '50%', // Festgelegte Breite für die Spalte
+
             render: (text, file) => (
                 editMode ? (
-                    <Input
+                    <Input.TextArea
                         defaultValue={removeFileExtension(text)}
                         onChange={(e) => handleFileNameChange(file.key, e.target.value)}
-                        className={'file-edit-searchbar'}
+                        className={'file-edit-searchbar file-edit-textarea'} // Neue Klasse hinzufügen
+                        autoSize={{minRows: 1, maxRows: 3}}
                     />
                 ) : removeFileExtension(text)
             ),
+
         },
         {
             title: 'File Type',
@@ -217,7 +219,7 @@ const FileManagementView = () => {
 
     return (
         <div className={'files-wrapper'}>
-            <Title style={{color: '#fff', paddingBottom: '2rem'}}>File Management</Title>
+            <Title style={{color: '#fff', padding: '2rem'}}>File Management</Title>
             <div className={'file-search-form'}>
                 <Input placeholder="Search files..." value={searchTerm} onChange={handleSearchChange}
                        style={{width: '50%', float: 'left', marginBottom: '20px'}} className={'file-upload-searchbar'}/>

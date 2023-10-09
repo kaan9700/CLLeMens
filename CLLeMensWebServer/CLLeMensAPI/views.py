@@ -7,6 +7,7 @@ from django.conf import settings
 import json
 import hashlib
 
+
 class FileUploadView(APIView):
     def post(self, request):
         # Use `getlist` to support multiple files
