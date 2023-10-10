@@ -241,3 +241,8 @@ body {
 
 }
 
+.react-pdf__Page__textContent, .react-pdf__Page__annotations, .react-pdf__message--no-data {
+  display: none !important;
+}
+
+

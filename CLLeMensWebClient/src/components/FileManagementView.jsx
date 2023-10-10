@@ -1,8 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {Button, Input, Table, Modal, Checkbox, Typography} from 'antd';
-import {EditOutlined, SaveOutlined, DeleteOutlined, FilterOutlined} from '@ant-design/icons';
+import {EditOutlined, SaveOutlined, DeleteOutlined, FilterOutlined, EyeOutlined} from '@ant-design/icons';
 import {makeRequest} from "../api/api.js";
 import {GET_FILES, DELETE_FILE, CHANGE_FILE_NAMES} from "../api/endpoints.js";
+import FilePreviewModal from "./FilePreviewModal.jsx";
+
 
 const {Title} = Typography;
 
@@ -17,6 +19,9 @@ const FileManagementView = () => {
     const [allFiles, setAllFiles] = useState([]);
     const [originalFileNames, setOriginalFileNames] = useState({});
     const [changedFiles, setChangedFiles] = useState([]);
+    const [previewModalVisible, setPreviewModalVisible] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+
     const [filter, setFilter] = useState({
         ebooks: false,
         pdf: false,
@@ -209,12 +214,23 @@ const FileManagementView = () => {
             align: 'center',
             key: 'action',
             render: (_, file) => (
-                <div style={{display: 'flex', justifyContent: 'center'}}>
-                    <Button icon={<DeleteOutlined/>} onClick={() => handleDeleteClick(file)} style={{color: 'red'}}/>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Button
+                        icon={<EyeOutlined/>}
+                        onClick={() => {
+                            setSelectedFile(file);
+                            setPreviewModalVisible(true);
+                        }}
+                    />
+                    <Button
+                        icon={<DeleteOutlined/>}
+                        onClick={() => handleDeleteClick(file)}
+                        style={{color: 'red'}}
+                    />
                 </div>
             ),
-
         },
+
     ];
 
     return (
@@ -280,6 +296,13 @@ const FileManagementView = () => {
                 <Checkbox name="videos" checked={tempFilter.videos} onChange={handleTempFilterChange}>Videos</Checkbox>
                 <Checkbox name="links" checked={tempFilter.links} onChange={handleTempFilterChange}>Links</Checkbox>
             </Modal>
+
+            <FilePreviewModal
+                file={selectedFile}
+                visible={previewModalVisible}
+                onClose={() => setPreviewModalVisible(false)}
+            />
+
         </div>
     );
 };

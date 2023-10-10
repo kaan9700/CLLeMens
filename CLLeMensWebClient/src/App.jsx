@@ -5,13 +5,15 @@ import FileUploadView from "./components/FileUploadView.jsx";
 import FileManagementView from "./components/FileManagementView.jsx";
 import NavBar from "./components/NavBar.jsx";
 import Chat from "./components/Chat.jsx";
+import {pdfjs} from 'react-pdf';
 
 
 function App() {
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
     return (
         <>
-          <NavBar/>
+            <NavBar/>
             <Routes>
                 <Route path='/' element={<Home/>}/>
                 <Route path='/upload' element={<FileUploadView/>}/>

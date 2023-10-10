@@ -49,6 +49,8 @@ class FileUploadView(APIView):
             if os.path.exists(file_path):
                 already_exists.append(modified_name)
             else:
+                if modified_name.endswith('.docx') or modified_name.endswith('.doc') :
+                    uploaded_file.content_type = 'application/docx'
                 # Save the file using the modified name and add md5_hash to the instance
                 file_instance = UploadedFile(
                     filename=modified_name,
@@ -94,11 +96,13 @@ class ListAllFilesView(APIView):
                 'key': file_instance.id,
                 'name': file_instance.filename,
                 # Here, we take the second part of the MIME type to get the file type. For example, "application/pdf" becomes "pdf".
-                'type': file_instance.file_type.split('/')[-1]
+                'type': file_instance.file_type.split('/')[-1],
+                'file_url': file_instance.file.url   # Hier fügen wir die vollständige URL zu der Datei hinzu
             } for file_instance in all_files_db
         ]
 
         return Response({'data': all_files_output}, status=status.HTTP_200_OK)
+
 
 
 class DeleteFileView(APIView):
