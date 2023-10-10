@@ -13,6 +13,7 @@ body {
 #root {
     background: #242424;
     width: 100%;
+    max-height: 100vh;
     margin: 0 auto;
     text-align: center;
     display: flex;
@@ -114,9 +115,17 @@ body {
     width: 100%;
 }
 
-.home-container, .file-upload-wrapper {
+.home-container, .file-upload-wrapper, .chat-wrapper {
     padding: 2rem;
 }
+
+.chat-wrapper{
+    display: flex;
+    flex-direction: column;
+    height: 80%;
+    max-height: 80%;
+}
+
 
 .customNavbar .ant-menu-item:hover {
     color: white !important;
@@ -208,7 +217,7 @@ body {
         gap: 20px; /* Abstand zwischen den Kind-Elementen */
     }
 
-    .file-upload-wrapper {
+    .file-upload-wrapper, .chat-wrapper {
         width: 70%;
         margin: 0 auto;
     }

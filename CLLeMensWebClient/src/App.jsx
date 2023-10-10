@@ -4,6 +4,8 @@ import Home from "./components/Home.jsx";
 import FileUploadView from "./components/FileUploadView.jsx";
 import FileManagementView from "./components/FileManagementView.jsx";
 import NavBar from "./components/NavBar.jsx";
+import Chat from "./components/Chat.jsx";
+
 
 function App() {
 
@@ -14,6 +16,7 @@ function App() {
                 <Route path='/' element={<Home/>}/>
                 <Route path='/upload' element={<FileUploadView/>}/>
                 <Route path='/files' element={<FileManagementView/>}/>
+                <Route path='/chat' element={<Chat/>}/>
 
             </Routes>
         </>

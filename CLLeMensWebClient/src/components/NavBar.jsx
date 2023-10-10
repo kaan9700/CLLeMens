@@ -1,9 +1,8 @@
 import {
-    HomeFilled,
     HomeOutlined,
     CloudUploadOutlined,
     FileOutlined,
-    FileFilled,
+    MessageOutlined,
     RobotOutlined,
 } from "@ant-design/icons";
 import {Menu} from "antd";
@@ -55,6 +54,11 @@ const NavBar = () => {
             label: "File-Manager",
             key: "files",
             icon: <FileOutlined/>,
+        },
+         {
+            label: "Chat",
+            key: "chat",
+            icon: <MessageOutlined />,
         },
     ];
 
