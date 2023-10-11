@@ -4,5 +4,6 @@ export const GET_FILES = BASE_URL + "list-all-files/"
 export const DELETE_FILE = BASE_URL + "delete-file/"
 export const CHANGE_FILE_NAMES = BASE_URL + "update-filenames/"
 export const SEND_MESSAGE = BASE_URL + "chat/"
+export const OPENAI_TOKEN = BASE_URL + "openai-token/"
 
 

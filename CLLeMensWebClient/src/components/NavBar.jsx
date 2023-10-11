@@ -4,6 +4,7 @@ import {
     FileOutlined,
     MessageOutlined,
     RobotOutlined,
+    AppstoreOutlined, // Neu importiert für das Untermenü-Icon
 } from "@ant-design/icons";
 import {Menu} from "antd";
 import {useNavigate} from "react-router-dom";
@@ -31,7 +32,7 @@ const NavBar = () => {
                         cursor: 'pointer'
                     }}> {/* cursor: 'pointer' zeigt an, dass es anklickbar ist */}
                     <RobotOutlined style={{fontSize: "50px", marginRight: "10px", color: 'white'}}/>
-                    <span style={{color: 'white', padding: '10px 0'}}>CLLeMens</span>
+                    <span style={{color: 'white', padding: '10px 0', fontSize: '1.2rem'}}>CLLeMens</span>
                 </div>
             ),
             key: "logo",
@@ -51,14 +52,26 @@ const NavBar = () => {
             icon: <CloudUploadOutlined/>,
         },
         {
-            label: "File-Manager",
+            label: "Files",
             key: "files",
             icon: <FileOutlined/>,
         },
          {
             label: "Chat",
-            key: "chat",
-            icon: <MessageOutlined />,
+            key: "chatMenu", // Dies wird jetzt als Menü-ID verwendet
+            icon: <AppstoreOutlined />,
+            children: [ // Untermenüpunkte
+                {
+                    label: "Chat",
+                    key: "chat",
+                    icon: <MessageOutlined />,
+                },
+                {
+                    label: "OpenAI Token",
+                    key: "token",
+                    icon: <MessageOutlined />, // Sie können hier auch ein anderes Symbol verwenden, wenn Sie möchten
+                }
+            ],
         },
     ];
 
@@ -85,7 +98,6 @@ const NavBar = () => {
                 mode="horizontal"
                 items={items}
                 style={{
-
                     color: 'white'
                 }}
             />

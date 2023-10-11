@@ -191,6 +191,14 @@ body {
         justify-content: center;
     }
 
+    .openai-token-wrapper{
+        flex-direction: column;
+    }
+    .openai-token-wrapper input{
+        margin: 0 0 20px 0;
+        font-size: 12px;
+    }
+
 }
 
 .ant-table-cell {
@@ -237,6 +245,10 @@ body {
         justify-content: right;
         align-items: center;
         padding-right: 5%;
+    }
+
+    .openai-token-wrapper input{
+        margin: 0 20px 0 0;
     }
 
 }

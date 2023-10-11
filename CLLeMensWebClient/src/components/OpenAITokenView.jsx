@@ -1,5 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {Input, Button, Typography} from 'antd';
+import {OPENAI_TOKEN} from "../api/endpoints.js";
+import {makeRequest} from "../api/api.js";
+import Notifications from "./Notifications.jsx";
 const {Title} = Typography;
 
 const OpenAITokenView = () => {
@@ -10,10 +13,15 @@ const OpenAITokenView = () => {
     useEffect(() => {
         const fetchApiToken = async () => {
             try {
-                const response = await makeRequest('YOUR_ENDPOINT_URL', 'GET');
-                const data = await response.json();
-                setApiToken(data.token);
-                setInitialApiToken(data.token);
+                const response = await makeRequest('GET', OPENAI_TOKEN);
+
+
+                if ('token' in response) {
+                    setApiToken(response.token);
+                    setInitialApiToken(response.token);
+                }
+
+
             } catch (error) {
                 console.error("Failed to fetch API token:", error);
             }
@@ -25,10 +33,12 @@ const OpenAITokenView = () => {
     // POST-Anfrage, um den API-Token zu aktualisieren
     const updateApiToken = async () => {
         try {
-            await makeRequest('YOUR_ENDPOINT_URL', 'POST', {token: apiToken});
+            await makeRequest('POST', OPENAI_TOKEN, {'token': apiToken});
             setInitialApiToken(apiToken);
+            Notifications('success', {'message': 'Failed', 'description': 'API Token saved'})
         } catch (error) {
-            console.error("Failed to update API token:", error);
+
+            Notifications('error', {'message': 'Successful', 'description': error.message})
         }
     };
 
@@ -46,36 +56,18 @@ const OpenAITokenView = () => {
         cursor: 'not-allowed',
     };
 
-    const makeRequest = async (url, method, body = null) => {
-        const headers = {
-            'Content-Type': 'application/json',
-            // Add any other headers if needed
-        };
-
-        const config = {
-            method,
-            headers,
-        };
-
-        if (body) {
-            config.body = JSON.stringify(body);
-        }
-
-        const response = await fetch(url, config);
-        return response;
-    };
-
 
     return (
         <div className="chat-wrapper">
             <Title style={{color: '#fff'}}>OpenAI Token</Title>
-            <div style={{display: 'flex', alignItems: 'center'}}>
+            <p style={{color: '#fff', marginBottom: '20px'}}>To enable integration with OpenAI's GPT-4, an API token is
+                required.</p>
+            <div style={{display: 'flex', alignItems: 'center'}} className={'openai-token-wrapper'}>
                 <Input
                     value={apiToken}
                     maxLength={55}
                     onChange={e => setApiToken(e.target.value)}
                     placeholder="Enter API Token"
-                    style={{marginRight: '10px'}}
                 />
                 <Button
                     type={'primary'}
@@ -87,6 +79,7 @@ const OpenAITokenView = () => {
             </div>
         </div>
     );
+
 };
 
 
