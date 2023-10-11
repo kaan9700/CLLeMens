@@ -5,6 +5,8 @@ import FileUploadView from "./components/FileUploadView.jsx";
 import FileManagementView from "./components/FileManagementView.jsx";
 import NavBar from "./components/NavBar.jsx";
 import Chat from "./components/Chat.jsx";
+import OpenAITokenView from "./components/OpenAITokenView.jsx";
+
 import {pdfjs} from 'react-pdf';
 
 
@@ -19,7 +21,7 @@ function App() {
                 <Route path='/upload' element={<FileUploadView/>}/>
                 <Route path='/files' element={<FileManagementView/>}/>
                 <Route path='/chat' element={<Chat/>}/>
-
+                <Route path='/token' element={<OpenAITokenView/>}/>
             </Routes>
         </>
     )

@@ -103,7 +103,7 @@ const FilePreviewModal = ({ file, visible, onClose }) => {
                 return <div>Unknown file type</div>;
         }
     };
-    
+
     return (
         <Modal
             open={visible}

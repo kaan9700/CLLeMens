@@ -8,3 +8,7 @@ class UploadedFile(models.Model):
     file_type = models.CharField(max_length=50)
     md5_hash = models.CharField(max_length=32, blank=True, editable=True)
     file = models.FileField(upload_to='uploads/')
+
+
+class OpenAIToken(models.Model):
+    filename = models.CharField(max_length=55)
