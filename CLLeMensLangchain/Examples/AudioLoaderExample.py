@@ -1,69 +1,62 @@
-import speech_recognition as sr
-import io
+import os
+import shutil
 from pydub import AudioSegment
-from pydub.silence import split_on_silence
-from deepmultilingualpunctuation import PunctuationModel
+import openai
+from dotenv import load_dotenv
+
+# Laden Sie die Umgebungsvariablen aus der .env-Datei
+load_dotenv()
+
+# Setzen Sie Ihren OpenAI API-Schlüssel aus der Umgebungsvariable
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-model = PunctuationModel()
+def chunk_and_transcribe(audio_file_path, chunk_length_in_seconds=120):
+    # Load audio file
+    song = AudioSegment.from_mp3(audio_file_path)
 
-# create a speech recognition object
-r = sr.Recognizer()
+    # Convert chunk length to milliseconds (PyDub uses milliseconds)
+    chunk_length = chunk_length_in_seconds * 1000
 
+    # Calculate number of chunks needed
+    num_chunks = len(song) // chunk_length + 1  # +1 to account for any remaining part
 
+    # Create cache directory if it doesn't exist
+    cache_dir = "cache"
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
 
-def transcribe_audio_chunk(audio_chunk):
-    # Convert pydub.AudioSegment to a byte-like object
-    buffer = io.BytesIO()
-    audio_chunk.export(buffer, format="wav")
-    buffer.seek(0)
+    # Initialize an empty string to store the full transcription
+    full_transcription = ""
 
-    with sr.AudioFile(buffer) as source:
-        audio_listened = r.record(source)
-        try:
-            text = r.recognize_google(audio_listened)
-            return text
-        except sr.UnknownValueError:
-            return "[Unrecognized segment]"
-        except sr.RequestError:
-            return "[API Unavailable]"
+    # Loop over the audio file, chunk by chunk
+    for i in range(num_chunks):
+        # Extract the chunk
+        start_time = i * chunk_length
+        end_time = (i + 1) * chunk_length
+        chunk = song[start_time:end_time]
 
+        # Export the chunk to a temporary file
+        temp_file_name = os.path.join(cache_dir, f"temp_chunk_{i}.mp3")
+        chunk.export(temp_file_name, format="mp3")
 
-def get_large_audio_transcription_on_silence(path):
-    # open the audio file using pydub
-    sound = AudioSegment.from_file(path)
-    # split audio sound where silence is 700 milliseconds or more and get chunks
-    chunks = split_on_silence(sound,
-                              min_silence_len=700,
-                              silence_thresh=sound.dBFS - 14,
-                              keep_silence=500,
-                              )
+        # Transcribe the chunk using OpenAI Whisper
+        with open(temp_file_name, "rb") as audio_file:
+            transcript = openai.Audio.transcribe("whisper-1", audio_file)
+            full_transcription += transcript['text'] + " "
 
-    whole_text = ""
-    for audio_chunk in chunks:
-        text = transcribe_audio_chunk(audio_chunk)
-        whole_text += text + " "
-    return whole_text
+        # Delete the temporary chunk file
+        os.remove(temp_file_name)
 
+    # Delete the cache directory
+    shutil.rmtree(cache_dir)
 
-def capitalize_after_period(text):
-    """
-    Capitalize the first letter of a word after a period.
-    """
-    sentences = text.split('. ')
-    sentences = [s.capitalize() for s in sentences]
-    return '. '.join(sentences)
-
-def add_punctuation(text):
-    result = model.restore_punctuation(text)
-    capitalized_result = capitalize_after_period(result)
-
-    return capitalized_result
+    return full_transcription
 
 
-if __name__ == "__main__":
-    filename = "../../290-trial-by-jury.mp3"
-    transcribed_text = get_large_audio_transcription_on_silence(filename)
-    punctuated_text = add_punctuation(transcribed_text)
-    print("\nFull text with punctuation:", punctuated_text)
+# For demonstration purposes
+audio_file_path_demo = "../../290-trial-by-jury.mp3"
+transcribed_text_demo = chunk_and_transcribe(audio_file_path_demo)
 
+# Print the transcribed text
+print(transcribed_text_demo)

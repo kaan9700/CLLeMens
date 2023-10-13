@@ -4,11 +4,19 @@ from CLLeMensLangchain.schema.loaders import Loaders
 from typing import Union, List
 from langchain.document_loaders import TextLoader
 from langchain.docstore.document import Document
-import speech_recognition as sr
-from deepmultilingualpunctuation import PunctuationModel
-import io
+import os
+import shutil
 from pydub import AudioSegment
+import openai
+from dotenv import load_dotenv
 from pydub.silence import split_on_silence
+
+
+# Laden Sie die Umgebungsvariablen aus der .env-Datei
+load_dotenv()
+
+# Setzen Sie Ihren OpenAI API-Schlüssel aus der Umgebungsvariable
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 class AudioLoader(Loaders):
@@ -22,31 +30,47 @@ class AudioLoader(Loaders):
         if "~" in self.file_path:
             self.file_path = os.path.expanduser(self.file_path)
 
-        # Initialize the punctuation model and speech recognition object
-        self.model = PunctuationModel()
-        self.recognizer = sr.Recognizer()
+    def transcribe_audio(self, audio_file_path, chunk_length_in_seconds=120):
+        # Load audio file
+        song = AudioSegment.from_mp3(audio_file_path)
 
-    def transcribe_audio_chunk(self, audio_chunk):
-        # Convert pydub.AudioSegment to a byte-like object
-        buffer = io.BytesIO()
-        audio_chunk.export(buffer, format="wav")
-        buffer.seek(0)
+        # Convert chunk length to milliseconds (PyDub uses milliseconds)
+        chunk_length = chunk_length_in_seconds * 1000
 
-        with sr.AudioFile(buffer) as source:
-            audio_listened = self.recognizer.record(source)
-            try:
-                text = self.recognizer.recognize_google(audio_listened)
-                return text
-            except sr.UnknownValueError:
-                return "[Unrecognized segment]"
-            except sr.RequestError:
-                return "[API Unavailable]"
+        # Calculate number of chunks needed
+        num_chunks = len(song) // chunk_length + 1  # +1 to account for any remaining part
 
-    def add_punctuation(self, text: str) -> str:
-        result = self.model.restore_punctuation(text)
-        sentences = result.split('. ')
-        sentences = [s.capitalize() for s in sentences]
-        return '. '.join(sentences)
+        # Create cache directory if it doesn't exist
+        cache_dir = "cache"
+        if not os.path.exists(cache_dir):
+            os.makedirs(cache_dir)
+
+        # Initialize an empty string to store the full transcription
+        full_transcription = ""
+
+        # Loop over the audio file, chunk by chunk
+        for i in range(num_chunks):
+            # Extract the chunk
+            start_time = i * chunk_length
+            end_time = (i + 1) * chunk_length
+            chunk = song[start_time:end_time]
+
+            # Export the chunk to a temporary file
+            temp_file_name = os.path.join(cache_dir, f"temp_chunk_{i}.mp3")
+            chunk.export(temp_file_name, format="mp3")
+
+            # Transcribe the chunk using OpenAI Whisper
+            with open(temp_file_name, "rb") as audio_file:
+                transcript = openai.Audio.transcribe("whisper-1", audio_file)
+                full_transcription += transcript['text'] + " "
+
+            # Delete the temporary chunk file
+            os.remove(temp_file_name)
+
+        # Delete the cache directory
+        shutil.rmtree(cache_dir)
+
+        return full_transcription
 
     def load(self) -> Union[str, List[str], List[Document]]:
         """
@@ -54,39 +78,29 @@ class AudioLoader(Loaders):
         :return: The transcribed content of the audio
         """
         try:
-            sound = AudioSegment.from_file(self.file_path)
-            chunks = split_on_silence(sound,
-                                      min_silence_len=700,
-                                      silence_thresh=sound.dBFS - 14,
-                                      keep_silence=500,
-                                      )
-
-            whole_text = ""
-            for audio_chunk in chunks:
-                text = self.transcribe_audio_chunk(audio_chunk)
-                whole_text += text + " "
-
-            formatted_text = self.add_punctuation(whole_text)
+            transcribtion = self.transcribe_audio(self.file_path)
 
             # Split the filepath into path and extension
             path, _ = os.path.splitext(self.file_path)
 
-            cache_path = path.replace("uploads", "cache")
+            cache_path = path.replace("uploads", "audio_cache")
 
             # Append the new extension .txt
             cache_file_path = cache_path + ".txt"
 
-            print("CACHE PATH:", cache_file_path)
+
             # Den String in die Datei schreiben
             with open(cache_file_path, 'w') as file:
-                file.write(formatted_text)
+                file.write(transcribtion)
 
             try:
-                content = TextLoader(self.file_path)
+                content = TextLoader(cache_file_path)
                 pages = content.load()
             except Exception as e:
                 return f"Error loading audio: {str(e)}"
 
+            # Remove the cache file
+            os.remove(cache_file_path)
             return pages
 
         except Exception as e:
