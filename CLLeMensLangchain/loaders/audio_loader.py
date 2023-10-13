@@ -32,13 +32,13 @@ class AudioLoader(Loaders):
 
     def transcribe_audio(self, audio_file_path, chunk_length_in_seconds=120):
         # Load audio file
-        song = AudioSegment.from_mp3(audio_file_path)
+        audio = AudioSegment.from_mp3(audio_file_path)
 
         # Convert chunk length to milliseconds (PyDub uses milliseconds)
         chunk_length = chunk_length_in_seconds * 1000
 
         # Calculate number of chunks needed
-        num_chunks = len(song) // chunk_length + 1  # +1 to account for any remaining part
+        num_chunks = len(audio) // chunk_length + 1  # +1 to account for any remaining part
 
         # Create cache directory if it doesn't exist
         cache_dir = "cache"
@@ -53,7 +53,7 @@ class AudioLoader(Loaders):
             # Extract the chunk
             start_time = i * chunk_length
             end_time = (i + 1) * chunk_length
-            chunk = song[start_time:end_time]
+            chunk = audio[start_time:end_time]
 
             # Export the chunk to a temporary file
             temp_file_name = os.path.join(cache_dir, f"temp_chunk_{i}.mp3")
