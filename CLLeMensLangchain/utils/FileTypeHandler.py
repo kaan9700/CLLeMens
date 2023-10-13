@@ -3,6 +3,7 @@ import os
 from CLLeMensLangchain.loaders.pdf_loader import PdfLoader
 from CLLeMensLangchain.loaders.docx_loader import DocxLoader
 from CLLeMensLangchain.loaders.text_loader import TxtLoader
+from CLLeMensLangchain.loaders.audio_loader import AudioLoader
 
 class FileTypeHandler:
     def __init__(self):
@@ -12,6 +13,7 @@ class FileTypeHandler:
             '.md': self.process_text_file,
             '.jpg': self.process_image_file,
             '.mp3': self.process_audio_file,
+            '.wav': self.process_audio_file,
             'application/pdf': self.process_pdf_file,
             '.pdf': self.process_pdf_file,
         }
@@ -45,6 +47,10 @@ class FileTypeHandler:
     def process_audio_file(self, file_path):
         # Handle audio file processing logic here
         print("Processing audio file:", file_path)
+        audioLoader = AudioLoader(file_path)
+        pages = audioLoader.load()
+        chunks = audioLoader.chunkDocument(pages, chunkSize=700)
+        return chunks
 
     def process_unknown_file(self, file_path):
         # Handle unknown file type logic here

@@ -82,6 +82,7 @@ const FilePreviewModal = ({ file, visible, onClose }) => {
 
             case 'video':
             case 'audio':
+            case 'mpeg':
                 return (
                     <ReactPlayer url={fileUrl} controls={true} width="100%" height="100%" />
                 );
