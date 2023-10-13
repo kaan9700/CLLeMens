@@ -10,6 +10,7 @@ const {Title, Paragraph} = Typography;
 
 const FileUploadView = () => {
     const [fileList, setFileList] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Custom request to handle file uploads
     const customRequest = ({onSuccess}) => {
@@ -20,6 +21,9 @@ const FileUploadView = () => {
 
     // Handle the file upload to the backend
     const handleUpload = async () => {
+        // Set loading to true
+        setLoading(true);
+
         // Create FormData to transfer files
         const formData = new FormData();
         fileList.forEach(file => {
@@ -35,6 +39,10 @@ const FileUploadView = () => {
             setFileList([]);
         } catch (error) {
             Notifications('error', {'message': 'Error', 'description': error.message});
+        }
+        finally {
+            // Set loading to false
+            setLoading(false);
         }
     };
 
@@ -85,7 +93,7 @@ const FileUploadView = () => {
                 onChange={({fileList: newFileList}) => {
                     setFileList(newFileList);
                 }}
-                style={{color: 'white', borderColor: '#64646b', padding: '20px', maxHeight: '300px'}}
+                style={{color: 'white', borderColor: '#64646b', padding: '20px', maxHeight: '250px'}}
                 className="custom-dragger"
             >
                 <p className="ant-upload-drag-icon">
@@ -102,8 +110,9 @@ const FileUploadView = () => {
                 onClick={handleUpload}
                 disabled={fileList.length === 0}
                 style={fileList.length === 0 ? disabledButtonStyle : enabledButtonStyle}
+                loading={loading}
             >
-                Upload
+                {loading ? 'Loading' : 'Upload'}
 
             </Button>
 
