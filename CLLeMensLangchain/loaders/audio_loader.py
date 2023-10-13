@@ -68,7 +68,10 @@ class AudioLoader(Loaders):
 
             formatted_text = self.add_punctuation(whole_text)
 
-            cache_path = self.file_path.replace("uploads", "cache")
+            # Split the filepath into path and extension
+            path, _ = os.path.splitext(self.file_path)
+
+            cache_path = path.replace("uploads", "cache")
 
             # Append the new extension .txt
             cache_file_path = cache_path + ".txt"
