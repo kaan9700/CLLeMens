@@ -1,11 +1,13 @@
 import os
 
 from CLLeMensLangchain.loaders.pdf_loader import PdfLoader
-
+from CLLeMensLangchain.loaders.docx_loader import DocxLoader
+from CLLeMensLangchain.loaders.text_loader import TxtLoader
 
 class FileTypeHandler:
     def __init__(self):
         self.file_type_handlers = {
+            '.docx': self.process_docx_file,
             '.txt': self.process_text_file,
             '.jpg': self.process_image_file,
             '.mp3': self.process_audio_file,
@@ -13,9 +15,20 @@ class FileTypeHandler:
             '.pdf': self.process_pdf_file,
         }
 
+    def process_docx_file(self, file_path):
+        print("Processing docx file:", file_path)
+        docxLoader = DocxLoader(file_path)
+        pages = docxLoader.load()
+        chunks = docxLoader.chunkDocument(pages, chunkSize=700)
+        return chunks
+
     def process_text_file(self, file_path):
         # Handle text file processing logic here
         print("Processing text file:", file_path)
+        textLoader = TxtLoader(file_path)
+        pages = textLoader.load()
+        chunks = textLoader.chunkDocument(pages, chunkSize=700)
+        return chunks
 
     def process_pdf_file(self, file_path):
         print("Processing pdf file:", file_path)
@@ -50,6 +63,7 @@ class FileTypeHandler:
         """
         processed_files = []
         extension = self.get_file_extension(file_path)
+        print("EXTENSION:", extension)
         if extension in self.file_type_handlers:
             processed_files = self.file_type_handlers[extension](file_path)
         else:

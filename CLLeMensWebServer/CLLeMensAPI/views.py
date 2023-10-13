@@ -19,9 +19,9 @@ class FileUploadView(APIView):
         self.db = deeplakeDB(base_dir=BASE_DIR)
         self.fileHandler = FileTypeHandler()
     def post(self, request):
+        print("POST")
         # Use `getlist` to support multiple files
         uploaded_files = request.FILES.getlist('files')
-
         if not uploaded_files:
             return Response({'message': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -41,8 +41,23 @@ class FileUploadView(APIView):
                 print("The md5 hash already exists in the database")
                 continue
 
+
+
+            # Check if the file has .rtf extension
+            if uploaded_file.name.endswith('.rtf'):
+                # Change the extension to .txt
+                name_without_ext = os.path.splitext(uploaded_file.name)[0]
+                uploaded_file.name = name_without_ext + '.txt'
+                uploaded_file.content_type = 'text'
+
+            #check if the file has .txt extension
+            if uploaded_file.name.endswith('.txt'):
+                # Change the content type to text
+                uploaded_file.content_type = 'text'
+
             # Replace spaces with underscores in the file name
             modified_name = uploaded_file.name.replace(' ', '_')
+
             # Construct the path where the file would be saved
             file_path = os.path.join(os.path.join(settings.BASE_DIR, '..', 'media', 'uploads'), modified_name)
 
@@ -50,7 +65,7 @@ class FileUploadView(APIView):
             if os.path.exists(file_path):
                 already_exists.append(modified_name)
             else:
-                if modified_name.endswith('.docx') or modified_name.endswith('.doc') :
+                if modified_name.endswith('.docx') or modified_name.endswith('.doc'):
                     uploaded_file.content_type = 'application/docx'
                 # Save the file using the modified name and add md5_hash to the instance
                 file_instance = UploadedFile(
