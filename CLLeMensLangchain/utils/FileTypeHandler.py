@@ -9,6 +9,7 @@ class FileTypeHandler:
         self.file_type_handlers = {
             '.docx': self.process_docx_file,
             '.txt': self.process_text_file,
+            '.md': self.process_text_file,
             '.jpg': self.process_image_file,
             '.mp3': self.process_audio_file,
             'application/pdf': self.process_pdf_file,
@@ -63,7 +64,7 @@ class FileTypeHandler:
         """
         processed_files = []
         extension = self.get_file_extension(file_path)
-        print("EXTENSION:", extension)
+
         if extension in self.file_type_handlers:
             processed_files = self.file_type_handlers[extension](file_path)
         else:

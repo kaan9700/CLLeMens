@@ -76,6 +76,7 @@ const FilePreviewModal = ({ file, visible, onClose }) => {
 
             case 'txt':
             case 'rtf':
+            case 'markdown':
                 renderTxtFile(fileUrl);
                 return <pre style={{ whiteSpace: "pre-wrap" }}>{textFileContent}</pre>;
 
