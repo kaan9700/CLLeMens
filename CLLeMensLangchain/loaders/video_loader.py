@@ -1,13 +1,14 @@
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from CLLeMensLangchain.schema.loaders import Loaders
-from typing import Union, List
-from langchain.document_loaders import TextLoader
-from langchain.docstore.document import Document
 import os
-import shutil
-from pydub import AudioSegment
 import openai
 from dotenv import load_dotenv
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from CLLeMensLangchain.schema.loaders import Loaders
+from moviepy.editor import *
+from pydub import AudioSegment
+import shutil
+from typing import Union, List
+from langchain.docstore.document import Document
 
 
 # Load the environment variables from the .env file
@@ -17,16 +18,47 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-class AudioLoader(Loaders):
+class VideoLoader(Loaders):
     def __init__(self, file_path: str):
         """
-        Initialize AudioLoader
+        Initialize VideoLoader
 
         :param file_path: The path to the file to be loaded
         """
         self.file_path = file_path
         if "~" in self.file_path:
             self.file_path = os.path.expanduser(self.file_path)
+
+
+    def video_to_audio(self):
+        # Split the filepath into path and extension
+        path, _ = os.path.splitext(self.file_path)
+
+        cache_path = path.replace("uploads", "video_cache")
+        cache_base_path = os.path.dirname(cache_path)
+
+        # Create the cache directory if it doesn't exist
+        if not os.path.exists(cache_base_path):
+            os.makedirs(cache_base_path)
+
+
+        # Load the video
+        video = VideoFileClip(self.file_path)
+
+        # extract audio from video
+        audio = video.audio
+
+        audio_path = cache_path + ".mp3"
+
+        # Save audio file
+        audio.write_audiofile(audio_path)
+
+        # Free resources
+        audio.close()
+        video.close()
+
+        return audio_path
+
 
     def transcribe_audio(self, audio_file_path, chunk_length_in_seconds=120):
         # Load audio file
@@ -70,13 +102,20 @@ class AudioLoader(Loaders):
 
         return full_transcription
 
+
     def load(self) -> Union[str, List[str], List[Document]]:
         """
-        Load content from an audio file and return its transcription
-        :return: The transcribed content of the audio
+        Load content from an video file and return its transcription
+        :return: The transcribed content of the video
         """
+
         try:
-            transcription = self.transcribe_audio(self.file_path)
+            # Convert video to audio
+            audio_path = self.video_to_audio()
+            print(audio_path)
+            # Transcribe audio
+            transcription = self.transcribe_audio(audio_path)
+
 
             # Split the filepath into path and extension
             path, _ = os.path.splitext(self.file_path)
@@ -91,7 +130,6 @@ class AudioLoader(Loaders):
             # Append the new extension .txt
             cache_file_path = cache_path + ".txt"
 
-
             # Write the string to the file
             with open(cache_file_path, 'w') as file:
                 file.write(transcription)
@@ -105,10 +143,15 @@ class AudioLoader(Loaders):
 
             # Remove the cache file
             os.remove(cache_file_path)
+
+            # Delete audio file
+            os.remove(audio_path)
+            
             return pages
 
         except Exception as e:
             return f"Error loading audio: {str(e)}"
+
 
     def chunkDocument(self, document: List[Document], chunkSize=750) -> List[Document]:
         """Chunk a document into smaller parts for processing via embeddings

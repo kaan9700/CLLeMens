@@ -4,6 +4,8 @@ from CLLeMensLangchain.loaders.pdf_loader import PdfLoader
 from CLLeMensLangchain.loaders.docx_loader import DocxLoader
 from CLLeMensLangchain.loaders.text_loader import TxtLoader
 from CLLeMensLangchain.loaders.audio_loader import AudioLoader
+from CLLeMensLangchain.loaders.video_loader import VideoLoader
+
 
 class FileTypeHandler:
     def __init__(self):
@@ -16,6 +18,9 @@ class FileTypeHandler:
             '.wav': self.process_audio_file,
             'application/pdf': self.process_pdf_file,
             '.pdf': self.process_pdf_file,
+            '.mp4': self.process_video_file,
+            '.mov': self.process_video_file,
+            '.wmv': self.process_video_file,
         }
 
     def process_docx_file(self, file_path):
@@ -51,6 +56,15 @@ class FileTypeHandler:
         pages = audioLoader.load()
         chunks = audioLoader.chunkDocument(pages, chunkSize=700)
         return chunks
+
+    def process_video_file(self, file_path):
+        # Handle audio file processing logic here
+        print("Processing video file:", file_path)
+        videoLoader = VideoLoader(file_path)
+        pages = videoLoader.load()
+        # chunks = videoLoader.chunkDocument(pages, chunkSize=700)
+        return 1
+
 
     def process_unknown_file(self, file_path):
         # Handle unknown file type logic here

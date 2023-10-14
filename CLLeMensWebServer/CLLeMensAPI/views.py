@@ -77,7 +77,7 @@ class FileUploadView(APIView):
                 file_instance.save()
                 successfully_uploaded.append(file_instance.id)
                 docs = self.fileHandler.process_file(file_path)
-                self.db.append_to_db(docs)
+                # self.db.append_to_db(docs)
 
         # Handle response logic based on files that were uploaded or already existed
         if already_exists and not successfully_uploaded:
