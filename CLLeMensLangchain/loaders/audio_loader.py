@@ -84,18 +84,24 @@ class AudioLoader(Loaders):
             path, _ = os.path.splitext(self.file_path)
 
             cache_path = path.replace("uploads", "audio_cache")
+            cache_base_path = os.path.dirname(cache_path)
+            print(cache_base_path)
+            # Create the cache directory if it doesn't exist
+            if not os.path.exists(cache_base_path):
+                os.makedirs(cache_base_path)
 
             # Append the new extension .txt
             cache_file_path = cache_path + ".txt"
 
 
-            # Den String in die Datei schreiben
+            # Write the string to the file
             with open(cache_file_path, 'w') as file:
                 file.write(transcribtion)
 
             try:
                 content = TextLoader(cache_file_path)
                 pages = content.load()
+                print(pages)
             except Exception as e:
                 return f"Error loading audio: {str(e)}"
 

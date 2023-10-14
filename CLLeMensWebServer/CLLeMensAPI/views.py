@@ -18,8 +18,8 @@ class FileUploadView(APIView):
         BASE_DIR = Path(__file__).resolve().parent.parent
         self.db = deeplakeDB(base_dir=BASE_DIR)
         self.fileHandler = FileTypeHandler()
+
     def post(self, request):
-        print("POST")
         # Use `getlist` to support multiple files
         uploaded_files = request.FILES.getlist('files')
         if not uploaded_files:
