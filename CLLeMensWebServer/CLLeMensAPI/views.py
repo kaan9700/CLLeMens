@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from CLLeMensLangchain.utils.FileTypeHandler import FileTypeHandler
-from CLLeMensLangchain.vectordbs.deeplake import deeplakeDB
+from CLLeMensLangchain.vectordbs.faiss import faissDB
 from .models import UploadedFile, OpenAIToken
 import os
 from django.conf import settings
@@ -15,11 +15,10 @@ import openai
 load_dotenv()
 
 
-
 class FileUploadView(APIView):
     def __init__(self):
         BASE_DIR = Path(__file__).resolve().parent.parent
-        self.db = deeplakeDB(base_dir=BASE_DIR)
+        self.db = faissDB(base_dir=BASE_DIR)
         self.fileHandler = FileTypeHandler()
 
     def post(self, request):
@@ -44,8 +43,6 @@ class FileUploadView(APIView):
                 print("The md5 hash already exists in the database")
                 continue
 
-
-
             # Check if the file has .rtf extension
             if uploaded_file.name.endswith('.rtf'):
                 # Change the extension to .txt
@@ -53,7 +50,7 @@ class FileUploadView(APIView):
                 uploaded_file.name = name_without_ext + '.txt'
                 uploaded_file.content_type = 'text'
 
-            #check if the file has .txt extension
+            # check if the file has .txt extension
             if uploaded_file.name.endswith('.txt'):
                 # Change the content type to text
                 uploaded_file.content_type = 'text'
@@ -79,8 +76,12 @@ class FileUploadView(APIView):
                 )
                 file_instance.save()
                 successfully_uploaded.append(file_instance.id)
-                docs = self.fileHandler.process_file(file_path)
-                self.db.append_to_db(docs)
+                try:
+                    docs = self.fileHandler.process_file(file_path)
+                    self.db.append_to_db(docs)
+
+                except:
+                    return Response({'message': 'File could not be processed'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Handle response logic based on files that were uploaded or already existed
         if already_exists and not successfully_uploaded:
@@ -116,15 +117,18 @@ class ListAllFilesView(APIView):
                 'name': file_instance.filename,
                 # Here, we take the second part of the MIME type to get the file type. For example, "application/pdf" becomes "pdf".
                 'type': file_instance.file_type.split('/')[-1],
-                'file_url': file_instance.file.url   # Hier fügen wir die vollständige URL zu der Datei hinzu
+                'file_url': file_instance.file.url  # Hier fügen wir die vollständige URL zu der Datei hinzu
             } for file_instance in all_files_db
         ]
 
         return Response({'data': all_files_output}, status=status.HTTP_200_OK)
 
 
-
 class DeleteFileView(APIView):
+    def __init__(self):
+        BASE_DIR = Path(__file__).resolve().parent.parent
+        self.db = faissDB(base_dir=BASE_DIR)
+
     def post(self, request):
         # The ID and name of the file to be deleted
         file_id = request.data.get('id')
@@ -146,6 +150,8 @@ class DeleteFileView(APIView):
 
             # Delete the file entry from the database
             file_instance.delete()
+
+            self.db.delete_from_db(file_name)
 
             return Response({'message': 'File successfully deleted.'}, status=status.HTTP_200_OK)
 
@@ -227,7 +233,8 @@ class OpenAITokenView(APIView):
 class ChatView(APIView):
     def __init__(self):
         BASE_DIR = Path(__file__).resolve().parent.parent
-        self.db = deeplakeDB(base_dir=BASE_DIR)
+        self.db = faissDB(base_dir=BASE_DIR)
+
     def get(self, request):
         try:
             print("GET")
@@ -240,7 +247,6 @@ class ChatView(APIView):
         answer = self.db.prompt(sent_message)
         if not answer:
             return Response({'message': 'Is the token present and correct?.'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
         # If the above step was successful, you can save or update the token
         return Response({'reply': answer}, status=status.HTTP_200_OK)
