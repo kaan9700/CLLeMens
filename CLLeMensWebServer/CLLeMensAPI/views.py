@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,6 +11,8 @@ import json
 import hashlib
 from pathlib import Path
 import openai
+
+load_dotenv()
 
 
 
@@ -77,7 +80,7 @@ class FileUploadView(APIView):
                 file_instance.save()
                 successfully_uploaded.append(file_instance.id)
                 docs = self.fileHandler.process_file(file_path)
-                # self.db.append_to_db(docs)
+                self.db.append_to_db(docs)
 
         # Handle response logic based on files that were uploaded or already existed
         if already_exists and not successfully_uploaded:
@@ -220,35 +223,6 @@ class OpenAITokenView(APIView):
 
         return Response({'message': 'Token was accepted'}, status=status.HTTP_200_OK)
 
-    class OpenAITokenView(APIView):
-        def get(self, request):
-            try:
-                # Try to retrieve the first (and hopefully only) token from the database
-                token = OpenAIToken.objects.first()
-                if token:
-                    return Response({'token': token.filename}, status=status.HTTP_200_OK)
-                else:
-                    return Response({'message': 'No token found.'}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        def post(self, request):
-            submitted_token = request.data.get('token')
-            print(submitted_token)
-            if not submitted_token:
-                return Response({'message': 'Token is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Check if the token is valid
-            openai.api_key = submitted_token
-            try:
-                openai.Completion.create(model="text-davinci-003", prompt="test", max_tokens=5)
-            except:
-                return Response({'message': 'Token is invalid'}, status=status.HTTP_400_BAD_REQUEST)
-
-            # If the above step was successful, you can save or update the token
-            token, created = OpenAIToken.objects.update_or_create(id=1, defaults={'filename': submitted_token})
-
-            return Response({'message': 'Token was accepted'}, status=status.HTTP_200_OK)
 
 class ChatView(APIView):
     def __init__(self):

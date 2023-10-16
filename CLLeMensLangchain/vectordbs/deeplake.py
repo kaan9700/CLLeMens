@@ -15,7 +15,7 @@ class deeplakeDB():
         load_dotenv(find_dotenv())
         self.name = name
         self.dbPath = os.path.join(base_dir, '', 'vectordbs/deeplake/' + name)
-        self.db=DeepLake(dataset_path=self.dbPath, embedding=OpenAIEmbeddings(disallowed_special=()))
+        self.db = DeepLake(dataset_path=self.dbPath, embedding=OpenAIEmbeddings(disallowed_special=()))
         self.model = None
 
     def append_to_db(self, document):
@@ -46,8 +46,7 @@ class deeplakeDB():
         qa = ConversationalRetrievalChain.from_llm(
             llm=self.model, retriever=retriever, verbose=True)
 
-        result = qa({"question":prompt, "chat_history": []})
-        answer = str(result['answer'])
+        answer = qa.run({"question": prompt, "chat_history": []})
 
 
         return answer
