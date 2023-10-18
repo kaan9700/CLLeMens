@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db_load:
+    build:
+      context: .
+      dockerfile: create-db.Dockerfile
+    volumes:
+      - type: bind
+        source: ./../CLLeMensWebServer
+        target: /db
+
+  db_dump:
+    build:
+      context: .
+      dockerfile: dump-db.Dockerfile
+    volumes:
+      - type: bind
+        source: ./../CLLeMensWebServer
+        target: /db
