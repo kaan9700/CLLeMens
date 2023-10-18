@@ -575,3 +575,4 @@ pyrightconfig.json
 .idea/dataSources.xml
 .idea/misc.xml
 CLLeMensWebServer/vectordbs/deeplake/*/*
+CLLeMensWebServer/db.sqlite3
