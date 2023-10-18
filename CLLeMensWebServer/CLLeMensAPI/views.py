@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from CLLeMensLangchain.utils.FileTypeHandler import FileTypeHandler
 from CLLeMensLangchain.vectordbs.faiss import faissDB
-from .models import UploadedFile, OpenAIToken
+from .models import UploadedFile, OpenAIToken, ApprovedFileTyps
 import os
 from django.conf import settings
 import json
@@ -122,6 +122,18 @@ class ListAllFilesView(APIView):
         ]
 
         return Response({'data': all_files_output}, status=status.HTTP_200_OK)
+
+
+class FileTypesView(APIView):
+    def get(self, request):
+        # Query all file types from the database
+        filetypes = ApprovedFileTyps.objects.all().values_list('filetype', flat=True)
+
+        # Conversion of the query set to a list
+        filetypes_list = list(filetypes)
+
+        # Returning the list as a response
+        return Response(filetypes_list)
 
 
 class DeleteFileView(APIView):

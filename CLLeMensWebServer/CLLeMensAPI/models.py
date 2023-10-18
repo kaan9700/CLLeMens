@@ -12,3 +12,7 @@ class UploadedFile(models.Model):
 
 class OpenAIToken(models.Model):
     filename = models.CharField(max_length=55)
+
+
+class ApprovedFileTyps(models.Model):
+    filetype = models.CharField(max_length=55)

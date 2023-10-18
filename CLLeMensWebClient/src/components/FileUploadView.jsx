@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Upload, Button, message, Typography, Descriptions} from 'antd';
 import {UploadOutlined, InboxOutlined} from '@ant-design/icons';
 import {makeRequest} from "../api/api.js";
-import {UPLOAD} from "../api/endpoints.js";
+import {UPLOAD, FILE_TYPES} from "../api/endpoints.js";
 import Notifications from "./Notifications.jsx";
+
 
 const {Dragger} = Upload;
 const {Title, Paragraph} = Typography;
@@ -11,6 +12,24 @@ const {Title, Paragraph} = Typography;
 const FileUploadView = () => {
     const [fileList, setFileList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [fileTypes, setFileTypes] = useState([]);
+
+    const fileSizeLimit = 25; // 25MB
+    const acceptedFileTypesString = fileTypes.join(',');
+    const fileSizeLimitBytes = fileSizeLimit * 1024 * 1024; // Convert MB to Bytes
+
+
+    // UseEffect to get all file types from backend
+    useEffect(() => {
+        (async () => {
+            // Use the makeRequest function to get all file types
+            let response = await makeRequest('GET', FILE_TYPES);
+            response = response.map(str => str.startsWith('.') ? str : '.' + str);
+            // Set the file types
+            setFileTypes(response);
+        })();
+    }, []);
+
 
     // Custom request to handle file uploads
     const customRequest = ({onSuccess}) => {
@@ -39,12 +58,12 @@ const FileUploadView = () => {
             setFileList([]);
         } catch (error) {
             Notifications('error', {'message': 'Error', 'description': error.message});
-        }
-        finally {
+        } finally {
             // Set loading to false
             setLoading(false);
         }
     };
+
 
     const enabledButtonStyle = {
         marginTop: '2em',
@@ -77,18 +96,23 @@ const FileUploadView = () => {
                     label="Supported File Types"
                     style={{border: '1px solid #64646b', color: '#fff', backgroundColor: '#242424'}}
                 >
-                    PDF, DOC, DOCX, MP4, MP3, etc.
+                    {fileTypes.map((fileType, index) => {
+                        return <span key={index}>{fileType}, </span>;
+                    })}
                 </Descriptions.Item>
                 <Descriptions.Item
                     className="custom-descriptions-item"
                     label="File Size Limit"
                     style={{border: '1px solid #64646b', color: '#fff', backgroundColor: '#242424'}}
                 >
-                    10MB per file.
+                    {fileSizeLimit} MB per file.
                 </Descriptions.Item>
             </Descriptions>
             <Dragger
+                accept={acceptedFileTypesString}
+
                 customRequest={customRequest}
+
                 fileList={fileList}
                 onChange={({fileList: newFileList}) => {
                     setFileList(newFileList);
