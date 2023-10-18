@@ -76,4 +76,6 @@ Clone the repository and navigate into the project directory.
 Both servers should now be running. Open your web browser and navigate to the respective URL to use the application.
 - The backend server will run on Port 8000. 
 - The frontend will run on Port 3000.
-- 
+
+
+## If you change the DB remember to re-dump it (docker-compose up -d db_dump)
