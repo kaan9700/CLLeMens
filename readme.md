@@ -1,4 +1,5 @@
 # CLLeMens Project
+CLLeMens is an integration of GPT-4 with its own knowledge base. By uploading your own files such as PDFs, MP3s or MP4s, for example, you can communicate with GPT-4 about your own files both on the Web UI and via Alexa. 
 
 ## Prerequisites
 
